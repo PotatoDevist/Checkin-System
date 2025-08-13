@@ -170,6 +170,8 @@
   <input type="hidden" name="longitude" id="longitude">
   <input type="hidden" name="mapLink" id="mapLink">
   <input type="hidden" name="deviceId" id="deviceId">
+  <input type="hidden" name="dayOfWeek" id="dayOfWeek">
+
 
   <button type="submit">Check In</button>
 </form>
@@ -191,6 +193,10 @@ function getDeviceId() {
 navigator.geolocation.getCurrentPosition(function(pos) {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
+
+    // Set day of week
+const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+document.getElementById("dayOfWeek").value = daysOfWeek[new Date().getDay()];
 
     document.getElementById("latitude").value = lat;
     document.getElementById("longitude").value = lng;
@@ -263,7 +269,7 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
     }
 
     const formData = new FormData(this);
-    fetch("https://script.google.com/macros/s/AKfycbwV7DqLmvTwJSag4wf-PWWO8ro4hLbLy3gAdd-Ae5Vl3vjo3pi_yfQVxgHEZkMmQGGs4g/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbzbRFUTFFOaDmCa1RRyMU47u5cgVgB2C7BIjv1MY7d7MC9LsNBre5Pem8i_pmTof3JvUw/exec", {
         method: "POST",
         body: formData
     })
@@ -281,6 +287,7 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 
 </body>
 </html>
+
 
 
 
