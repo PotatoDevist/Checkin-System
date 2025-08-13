@@ -201,6 +201,33 @@ navigator.geolocation.getCurrentPosition(function(pos) {
     alert("Location access is required to check in.");
 });
 
+// 🔹 NEW: Ensure only one name is picked
+const studentSelect = document.getElementById("studentName");
+const teacherSelect = document.getElementById("teacherName");
+const roleField = document.getElementById("role");
+
+studentSelect.addEventListener("change", function() {
+    if (this.value) {
+        teacherSelect.value = "";
+        teacherSelect.disabled = true;
+        roleField.value = "Student";
+    } else {
+        teacherSelect.disabled = false;
+        roleField.value = "";
+    }
+});
+
+teacherSelect.addEventListener("change", function() {
+    if (this.value) {
+        studentSelect.value = "";
+        studentSelect.disabled = true;
+        roleField.value = "Teacher";
+    } else {
+        studentSelect.disabled = false;
+        roleField.value = "";
+    }
+});
+
 // On page load set device ID and check last check-in
 document.getElementById("deviceId").value = getDeviceId();
 
@@ -254,6 +281,7 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 
 </body>
 </html>
+
 
 
 
