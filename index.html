@@ -39,7 +39,7 @@
 
 <h2>LKA Check-In</h2>
 
-<!-- Added responsive Important Notes -->
+<!-- Important Notes converted to text -->
 <div style="background-color: #e9f5ff; padding: 15px; border-radius: 8px; color: #000;">
   <h3>📌 Catatan Penting bagi Siswa atas Fasilitas Yayasan</h3>
   <ol>
@@ -58,8 +58,6 @@
     <li>Laporan kedisiplinan guru akan tercatat dan akan dibahas pada rapat dengan pengurus.</li>
   </ol>
 </div>
-
-
 <form id="checkinForm">
   <label>Name:</label>
   <select name="name" required>
@@ -153,8 +151,10 @@
   <label><input type="radio" name="status" value="Present" required> Present</label>
   <label><input type="radio" name="status" value="Not Present"> Not Present</label>
 
+  <!-- Hidden fields for coordinates and map link -->
   <input type="hidden" name="latitude" id="latitude">
   <input type="hidden" name="longitude" id="longitude">
+  <input type="hidden" name="mapLink" id="mapLink">
   <input type="hidden" name="deviceId" id="deviceId">
 
   <button type="submit">Check In</button>
@@ -173,10 +173,16 @@ function getDeviceId() {
     return id;
 }
 
-// Get location
+// Get location and build Google Maps link
 navigator.geolocation.getCurrentPosition(function(pos) {
-    document.getElementById("latitude").value = pos.coords.latitude;
-    document.getElementById("longitude").value = pos.coords.longitude;
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+
+    document.getElementById("latitude").value = lat;
+    document.getElementById("longitude").value = lng;
+
+    // Create Google Maps link
+    document.getElementById("mapLink").value = `https://www.google.com/maps?q=${lat},${lng}`;
 }, function(error) {
     alert("Location access is required to check in.");
 });
@@ -221,4 +227,3 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 
 </body>
 </html>
-
