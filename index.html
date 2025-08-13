@@ -207,13 +207,13 @@ document.getElementById("deviceId").value = getDeviceId();
 const checkinButton = document.querySelector("button[type='submit']");
 const lastCheckin = localStorage.getItem("lastCheckin");
 
-if (lastCheckin) {
+/* if (lastCheckin) {
     const elapsed = Date.now() - parseInt(lastCheckin);
     if (elapsed < 3600000) { // 1 hour = 3600000 ms
         checkinButton.disabled = true;
         document.getElementById("message").innerText = "You have already checked in. Please wait 1 hour.";
     }
-}
+}*/
 
 // Handle form submit
 document.getElementById("checkinForm").addEventListener("submit", function(e) {
@@ -254,5 +254,6 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 
 </body>
 </html>
+
 
 
