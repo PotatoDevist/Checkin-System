@@ -189,25 +189,32 @@ function getDeviceId() {
     return id;
 }
 
-// Get location and build Google Maps link
+// 🔹 Disable submit until location is granted
+const checkinButton = document.querySelector("button[type='submit']");
+checkinButton.disabled = true;
+
+// Try to get location
 navigator.geolocation.getCurrentPosition(function(pos) {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
 
     // Set day of week
-const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-document.getElementById("dayOfWeek").value = daysOfWeek[new Date().getDay()];
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    document.getElementById("dayOfWeek").value = daysOfWeek[new Date().getDay()];
 
     document.getElementById("latitude").value = lat;
     document.getElementById("longitude").value = lng;
-
-    // Create Google Maps link
     document.getElementById("mapLink").value = `https://www.google.com/maps?q=${lat},${lng}`;
+    
+    // Enable submit after location is set
+    checkinButton.disabled = false;
+
 }, function(error) {
     alert("Location access is required to check in.");
+    checkinButton.disabled = true;
 });
 
-// 🔹 NEW: Ensure only one name is picked
+// 🔹 Only one name can be selected
 const studentSelect = document.getElementById("studentName");
 const teacherSelect = document.getElementById("teacherName");
 const roleField = document.getElementById("role");
@@ -234,47 +241,32 @@ teacherSelect.addEventListener("change", function() {
     }
 });
 
-// On page load set device ID and check last check-in
+// On page load set device ID
 document.getElementById("deviceId").value = getDeviceId();
-
-const checkinButton = document.querySelector("button[type='submit']");
-const lastCheckin = localStorage.getItem("lastCheckin");
-
-/* if (lastCheckin) {
-    const elapsed = Date.now() - parseInt(lastCheckin);
-    if (elapsed < 3600000) { // 1 hour = 3600000 ms
-        checkinButton.disabled = true;
-        document.getElementById("message").innerText = "You have already checked in. Please wait 1 hour.";
-    }
-}*/
 
 // Handle form submit
 document.getElementById("checkinForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
-    // Extra safety check
-    if (checkinButton.disabled) return;
+    if (checkinButton.disabled) {
+        alert("Please enable location services to check in.");
+        return;
+    }
 
-    // Determine role based on which dropdown is filled
-    const studentName = document.getElementById("studentName").value;
-    const teacherName = document.getElementById("teacherName").value;
+    const studentName = studentSelect.value;
+    const teacherName = teacherSelect.value;
 
-    if (teacherName) {
-        document.getElementById("role").value = "Teacher";
-    } else if (studentName) {
-        document.getElementById("role").value = "Student";
-    } else {
+    if (!studentName && !teacherName) {
         alert("Please select a name.");
         return;
     }
 
-    const formData = new FormData(this);
     fetch("https://script.google.com/macros/s/AKfycbzbRFUTFFOaDmCa1RRyMU47u5cgVgB2C7BIjv1MY7d7MC9LsNBre5Pem8i_pmTof3JvUw/exec", {
         method: "POST",
-        body: formData
+        body: new FormData(this)
     })
     .then(res => res.text())
-    .then(data => {
+    .then(() => {
         document.getElementById("message").innerText = "Check-in recorded successfully!";
         checkinButton.disabled = true;
         localStorage.setItem("lastCheckin", Date.now());
@@ -287,6 +279,7 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 
 </body>
 </html>
+
 
 
 
