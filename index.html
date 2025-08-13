@@ -4,9 +4,27 @@
 <title>LKA Check-In</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body { font-family: Arial, sans-serif; padding: 20px; }
+  body { 
+      font-family: Arial, sans-serif; 
+      padding: 20px; 
+      background-color: #121212; 
+      color: #f5f5f5; 
+  }
   label { display: block; margin-top: 10px; }
-  button { margin-top: 15px; padding: 10px; }
+  select, input[type="radio"] { margin-top: 5px; }
+  button { 
+      margin-top: 15px; 
+      padding: 10px; 
+      background-color: #1a73e8; 
+      color: #ffffff; 
+      border: none; 
+      cursor: pointer; 
+  }
+  button:disabled {
+      background-color: #555555;
+      cursor: not-allowed;
+  }
+  p { margin-top: 15px; }
 </style>
 </head>
 <body>
@@ -54,12 +72,26 @@ navigator.geolocation.getCurrentPosition(function(pos) {
     alert("Location access is required to check in.");
 });
 
-// On page load set device ID
+// On page load set device ID and check last check-in
 document.getElementById("deviceId").value = getDeviceId();
+
+const checkinButton = document.querySelector("button[type='submit']");
+const lastCheckin = localStorage.getItem("lastCheckin");
+
+if (lastCheckin) {
+    const elapsed = Date.now() - parseInt(lastCheckin);
+    if (elapsed < 3600000) { // 1 hour = 3600000 ms
+        checkinButton.disabled = true;
+        document.getElementById("message").innerText = "You have already checked in. Please wait 1 hour.";
+    }
+}
 
 // Handle form submit
 document.getElementById("checkinForm").addEventListener("submit", function(e) {
     e.preventDefault();
+
+    // Extra safety check
+    if (checkinButton.disabled) return;
 
     const formData = new FormData(this);
     fetch("https://script.google.com/macros/s/AKfycbzd7i0BRhoA6Xr-_znY18KPXWnCtqv2FnCTaFh7eqyM0uA31u9o1CIceOtuewv97rmQWA/exec", {
@@ -69,6 +101,8 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
     .then(res => res.text())
     .then(data => {
         document.getElementById("message").innerText = "Check-in recorded successfully!";
+        checkinButton.disabled = true;
+        localStorage.setItem("lastCheckin", Date.now());
     })
     .catch(err => {
         document.getElementById("message").innerText = "Error: " + err;
@@ -78,6 +112,3 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 
 </body>
 </html>
-
-
-
