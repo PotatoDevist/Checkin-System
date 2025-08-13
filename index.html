@@ -62,7 +62,7 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
     const formData = new FormData(this);
-    fetch("YOUR_GOOGLE_APPS_SCRIPT_URL", {
+    fetch("https://script.google.com/macros/s/AKfycbzd7i0BRhoA6Xr-_znY18KPXWnCtqv2FnCTaFh7eqyM0uA31u9o1CIceOtuewv97rmQWA/exec", {
         method: "POST",
         body: formData
     })
@@ -78,3 +78,4 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 
 </body>
 </html>
+
