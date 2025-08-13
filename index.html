@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Office Check-In</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  label { display: block; margin-top: 10px; }
+  button { margin-top: 15px; padding: 10px; }
+</style>
+</head>
+<body>
+
+<h2>Office Attendance</h2>
+<form id="checkinForm">
+  <label>Name:</label>
+  <select name="name" required>
+    <option value="">Select your name</option>
+    <option>John Doe</option>
+    <option>Jane Smith</option>
+    <option>Alex Johnson</option>
+    <!-- Add more names here -->
+  </select>
+
+  <label>Status:</label>
+  <label><input type="radio" name="status" value="Present" required> Present</label>
+  <label><input type="radio" name="status" value="Not Present"> Not Present</label>
+
+  <input type="hidden" name="latitude" id="latitude">
+  <input type="hidden" name="longitude" id="longitude">
+  <input type="hidden" name="deviceId" id="deviceId">
+
+  <button type="submit">Check In</button>
+</form>
+
+<p id="message"></p>
+
+<script>
+// Generate or retrieve stored device ID
+function getDeviceId() {
+    let id = localStorage.getItem("deviceId");
+    if (!id) {
+        id = "dev-" + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem("deviceId", id);
+    }
+    return id;
+}
+
+// Get location
+navigator.geolocation.getCurrentPosition(function(pos) {
+    document.getElementById("latitude").value = pos.coords.latitude;
+    document.getElementById("longitude").value = pos.coords.longitude;
+}, function(error) {
+    alert("Location access is required to check in.");
+});
+
+// On page load set device ID
+document.getElementById("deviceId").value = getDeviceId();
+
+// Handle form submit
+document.getElementById("checkinForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    fetch("YOUR_GOOGLE_APPS_SCRIPT_URL", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.text())
+    .then(data => {
+        document.getElementById("message").innerText = "Check-in recorded successfully!";
+    })
+    .catch(err => {
+        document.getElementById("message").innerText = "Error: " + err;
+    });
+});
+</script>
+
+</body>
+</html>
