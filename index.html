@@ -25,11 +25,23 @@
       cursor: not-allowed;
   }
   p { margin-top: 15px; }
+
+  /* Responsive image class */
+  .responsive-img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: auto;
+  }
 </style>
 </head>
 <body>
 
 <h2>LKA Check-In</h2>
+
+<!-- Added responsive Important Notes image -->
+<img src="ImportantNotes.png" alt="Important Notes" class="responsive-img" />
+
 <form id="checkinForm">
   <label>Name:</label>
   <select name="name" required>
@@ -119,9 +131,6 @@
     <option>Yogi Arya Sulistiono</option>
 </select>
 
-    <!-- Add more names here -->
-  </select>
-
   <label>Status:</label>
   <label><input type="radio" name="status" value="Present" required> Present</label>
   <label><input type="radio" name="status" value="Not Present"> Not Present</label>
@@ -194,4 +203,3 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 
 </body>
 </html>
-
