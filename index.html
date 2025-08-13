@@ -59,10 +59,11 @@
   </ol>
 </div>
 <form id="checkinForm">
-  <label>Name:</label>
-  <select name="name" required>
-    <option value="">Select your name</option>
-    <option>Afifah Nabilah</option>
+  <!-- Student dropdown -->
+<label>Student Name:</label>
+<select name="studentName" id="studentName">
+  <option value="">Select student name</option>
+  <option>Afifah Nabilah</option>
     <option>Ahmad Ridho</option>
     <option>Aiko Dzahin Sukotjo</option>
     <option>Ais Rosdiana</option>
@@ -147,6 +148,19 @@
     <option>Yogi Arya Sulistiono</option>
 </select>
 
+<!-- Teacher dropdown -->
+<label>Teacher Name:</label>
+<select name="teacherName" id="teacherName">
+  <option value="">Select teacher name</option>
+  <option>Ustadz Nisin Mursani</option>
+  <option>Ustadz Bay</option>
+  <option>Ustadz Rivo</option>
+</select>
+
+<!-- Hidden role field -->
+<input type="hidden" name="role" id="role">
+
+
   <label>Status:</label>
   <label><input type="radio" name="status" value="Present" required> Present</label>
   <label><input type="radio" name="status" value="Not Present"> Not Present</label>
@@ -208,8 +222,21 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
     // Extra safety check
     if (checkinButton.disabled) return;
 
+    // Determine role based on which dropdown is filled
+    const studentName = document.getElementById("studentName").value;
+    const teacherName = document.getElementById("teacherName").value;
+
+    if (teacherName) {
+        document.getElementById("role").value = "Teacher";
+    } else if (studentName) {
+        document.getElementById("role").value = "Student";
+    } else {
+        alert("Please select a name.");
+        return;
+    }
+
     const formData = new FormData(this);
-    fetch("https://script.google.com/macros/s/AKfycbzwMYQMFI5_JDWXHEl4F3W39cIDllHatVReq2kv1KWMH4Ds0uCrwK9i_hEu9x0lpaeUlw/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbwV7DqLmvTwJSag4wf-PWWO8ro4hLbLy3gAdd-Ae5Vl3vjo3pi_yfQVxgHEZkMmQGGs4g/exec", {
         method: "POST",
         body: formData
     })
@@ -227,4 +254,5 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 
 </body>
 </html>
+
 
