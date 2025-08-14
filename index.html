@@ -296,6 +296,12 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
         return;
     }
 
+    // Disable button immediately to prevent spam
+    checkinButton.disabled = true;
+    // Set cooldown immediately
+    localStorage.setItem("lastCheckin", Date.now());
+    updateButtonState();
+
     fetch("https://script.google.com/macros/s/AKfycbzbRFUTFFOaDmCa1RRyMU47u5cgVgB2C7BIjv1MY7d7MC9LsNBre5Pem8i_pmTof3JvUw/exec", {
         method: "POST",
         body: new FormData(this)
@@ -303,11 +309,13 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
     .then(res => res.text())
     .then(() => {
         document.getElementById("message").innerText = "Check-in recorded successfully!";
-        localStorage.setItem("lastCheckin", Date.now());
-        updateButtonState();
     })
     .catch(err => {
         document.getElementById("message").innerText = "Error: " + err;
+        // Only re-enable if there was an error
+        checkinButton.disabled = false;
+        localStorage.removeItem("lastCheckin");
+        updateButtonState();
     });
 });
 
@@ -318,6 +326,7 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 
 </body>
 </html>
+
 
 
 
