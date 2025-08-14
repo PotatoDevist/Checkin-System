@@ -222,8 +222,9 @@ function isCooldownActive() {
 
 function updateButtonState() {
     const nameSelected = studentSelect.value !== "" || teacherSelect.value !== "";
+    const statusSelected = document.querySelector('input[name="status"]:checked') !== null;
     const cooldownActive = isCooldownActive();
-    checkinButton.disabled = !(locationGranted && nameSelected) || cooldownActive;
+    checkinButton.disabled = !(locationGranted && nameSelected && statusSelected) || cooldownActive;
 
     // Show or hide cooldown message with minutes remaining
     const cooldownMsg = document.getElementById("cooldownMsg");
@@ -235,6 +236,12 @@ function updateButtonState() {
         cooldownMsg.style.display = "none";
     }
 }
+
+// Update button state when status radio changes
+document.querySelectorAll('input[name="status"]').forEach(radio => {
+    radio.addEventListener('change', updateButtonState);
+});
+
 
 
 // Try to get location
@@ -317,6 +324,7 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 
 </body>
 </html>
+
 
 
 
