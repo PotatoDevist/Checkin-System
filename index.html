@@ -174,6 +174,7 @@
 
 
   <button type="submit">Check In</button>
+<p id="cooldownMsg" style="color: red; margin-top: 5px; display: none;">Please wait for one hour.</p>
 </form>
 
 <p id="message"></p>
@@ -189,16 +190,57 @@ function getDeviceId() {
     return id;
 }
 
-// 🔹 Disable submit until location is granted
 const checkinButton = document.querySelector("button[type='submit']");
-checkinButton.disabled = true;
+const studentSelect = document.getElementById("studentName");
+const teacherSelect = document.getElementById("teacherName");
+const roleField = document.getElementById("role");
+
+let locationGranted = false;
+
+// Cooldown check: returns true if less than 1 hour since last check-in
+function isCooldownActive() {
+    const lastCheckin = localStorage.getItem("lastCheckin");
+    if (!lastCheckin) return false;
+    return (Date.now() - parseInt(lastCheckin)) < 60 * 60 * 1000;
+}
+
+function getCooldownRemaining() {
+    const lastCheckin = localStorage.getItem("lastCheckin");
+    if (!lastCheckin) return 0;
+    const diff = 60 * 60 * 1000 - (Date.now() - parseInt(lastCheckin));
+    return Math.ceil(diff / 60000); // minutes
+}
+
+function isCooldownActive() {
+    const lastCheckin = localStorage.getItem("lastCheckin");
+    if (!lastCheckin) return false;
+    return (Date.now() - parseInt(lastCheckin)) < 60 * 60 * 1000;
+}
+
+// Check both location, name, and cooldown before enabling button
+
+function updateButtonState() {
+    const nameSelected = studentSelect.value !== "" || teacherSelect.value !== "";
+    const cooldownActive = isCooldownActive();
+    checkinButton.disabled = !(locationGranted && nameSelected) || cooldownActive;
+
+    // Show or hide cooldown message with minutes remaining
+    const cooldownMsg = document.getElementById("cooldownMsg");
+    if (cooldownActive) {
+        const remaining = getCooldownRemaining();
+        cooldownMsg.textContent = `Please wait ${remaining} minute${remaining !== 1 ? 's' : ''} before checking in again.`;
+        cooldownMsg.style.display = "block";
+    } else {
+        cooldownMsg.style.display = "none";
+    }
+}
+
 
 // Try to get location
 navigator.geolocation.getCurrentPosition(function(pos) {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
 
-    // Set day of week
     const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     document.getElementById("dayOfWeek").value = daysOfWeek[new Date().getDay()];
 
@@ -206,19 +248,16 @@ navigator.geolocation.getCurrentPosition(function(pos) {
     document.getElementById("longitude").value = lng;
     document.getElementById("mapLink").value = `https://www.google.com/maps?q=${lat},${lng}`;
     
-    // Enable submit after location is set
-    checkinButton.disabled = false;
+    locationGranted = true;
+    updateButtonState();
 
 }, function(error) {
     alert("Location access is required to check in.");
-    checkinButton.disabled = true;
+    locationGranted = false;
+    updateButtonState();
 });
 
-// 🔹 Only one name can be selected
-const studentSelect = document.getElementById("studentName");
-const teacherSelect = document.getElementById("teacherName");
-const roleField = document.getElementById("role");
-
+// Only one name can be selected
 studentSelect.addEventListener("change", function() {
     if (this.value) {
         teacherSelect.value = "";
@@ -228,6 +267,7 @@ studentSelect.addEventListener("change", function() {
         teacherSelect.disabled = false;
         roleField.value = "";
     }
+    updateButtonState();
 });
 
 teacherSelect.addEventListener("change", function() {
@@ -239,25 +279,19 @@ teacherSelect.addEventListener("change", function() {
         studentSelect.disabled = false;
         roleField.value = "";
     }
+    updateButtonState();
 });
 
 // On page load set device ID
 document.getElementById("deviceId").value = getDeviceId();
+updateButtonState();
 
 // Handle form submit
 document.getElementById("checkinForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
-    if (checkinButton.disabled) {
-        alert("Please enable location services to check in.");
-        return;
-    }
-
-    const studentName = studentSelect.value;
-    const teacherName = teacherSelect.value;
-
-    if (!studentName && !teacherName) {
-        alert("Please select a name.");
+    if (checkinButton.disabled && !isCooldownActive()) {
+        alert("Please select your name and allow location access to check in.");
         return;
     }
 
@@ -268,8 +302,8 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
     .then(res => res.text())
     .then(() => {
         document.getElementById("message").innerText = "Check-in recorded successfully!";
-        checkinButton.disabled = true;
         localStorage.setItem("lastCheckin", Date.now());
+        updateButtonState();
     })
     .catch(err => {
         document.getElementById("message").innerText = "Error: " + err;
@@ -277,8 +311,12 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 });
 </script>
 
+
+
+
 </body>
 </html>
+
 
 
 
