@@ -195,7 +195,6 @@ const checkinButton = document.querySelector("button[type='submit']");
 const studentSelect = document.getElementById("studentName");
 const teacherSelect = document.getElementById("teacherName");
 const roleField = document.getElementById("role");
-
 let locationGranted = false;
 
 // Cooldown check: returns true if less than 1 hour since last check-in
@@ -211,14 +210,6 @@ function getCooldownRemaining() {
     const diff = 60 * 60 * 1000 - (Date.now() - parseInt(lastCheckin));
     return Math.ceil(diff / 60000); // minutes
 }
-
-function isCooldownActive() {
-    const lastCheckin = localStorage.getItem("lastCheckin");
-    if (!lastCheckin) return false;
-    return (Date.now() - parseInt(lastCheckin)) < 60 * 60 * 1000;
-}
-
-// Check both location, name, and cooldown before enabling button
 
 function updateButtonState() {
     const nameSelected = studentSelect.value !== "" || teacherSelect.value !== "";
@@ -242,8 +233,6 @@ document.querySelectorAll('input[name="status"]').forEach(radio => {
     radio.addEventListener('change', updateButtonState);
 });
 
-
-
 // Try to get location
 navigator.geolocation.getCurrentPosition(function(pos) {
     const lat = pos.coords.latitude;
@@ -255,10 +244,9 @@ navigator.geolocation.getCurrentPosition(function(pos) {
     document.getElementById("latitude").value = lat;
     document.getElementById("longitude").value = lng;
     document.getElementById("mapLink").value = `https://www.google.com/maps?q=${lat},${lng}`;
-    
+
     locationGranted = true;
     updateButtonState();
-
 }, function(error) {
     alert("Location access is required to check in.");
     locationGranted = false;
@@ -298,8 +286,13 @@ updateButtonState();
 document.getElementById("checkinForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
-    if (checkinButton.disabled && !isCooldownActive()) {
-        alert("Please select your name and allow location access to check in.");
+    if (isCooldownActive()) {
+        alert("Please wait before checking in again.");
+        return;
+    }
+
+    if (!locationGranted || (!studentSelect.value && !teacherSelect.value) || !document.querySelector('input[name="status"]:checked')) {
+        alert("Please select your name, status, and allow location access to check in.");
         return;
     }
 
@@ -317,6 +310,7 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
         document.getElementById("message").innerText = "Error: " + err;
     });
 });
+
 </script>
 
 
@@ -324,6 +318,7 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 
 </body>
 </html>
+
 
 
 
