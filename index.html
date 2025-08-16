@@ -4,182 +4,493 @@
 <title>LKA Check-In</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
   body { 
-      font-family: Arial, sans-serif; 
-      padding: 20px; 
-      background-color: #0E100F; 
-      color: #f5f5f5; 
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+    color: #f8fafc;
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
   }
-  label { display: block; margin-top: 10px; }
-  select, input[type="radio"] { margin-top: 5px; }
+  
+  /* Animated background elements */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  
+  h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+  }
+  
+  .notes-container {
+    background: rgba(17, 25, 40, 0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .notes-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+  }
+  
+  .notes-container h3 {
+    color: #3b82f6;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .notes-container ol {
+    padding-left: 1.5rem;
+    line-height: 1.6;
+  }
+  
+  .notes-container li {
+    margin-bottom: 0.5rem;
+    color: #cbd5e1;
+  }
+  
+  .notes-container strong {
+    color: #ef4444 !important;
+    font-weight: 600;
+  }
+  
+  .form-container {
+    background: rgba(17, 25, 40, 0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .form-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.6), transparent);
+  }
+  
+  label {
+    display: block;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+  }
+  
+  select {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(30, 41, 59, 0.8);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    color: #f8fafc;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+  }
+  
+  select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .radio-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .radio-option {
+    position: relative;
+  }
+  
+  .radio-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  .radio-option label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(30, 41, 59, 0.5);
+    border: 2px solid rgba(139, 92, 246, 0.3);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .radio-option label::before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(139, 92, 246, 0.5);
+    border-radius: 50%;
+    background: transparent;
+    transition: all 0.3s ease;
+  }
+  
+  .radio-option input[type="radio"]:checked + label {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: #8b5cf6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  }
+  
+  .radio-option input[type="radio"]:checked + label::before {
+    background: #8b5cf6;
+    border-color: #8b5cf6;
+    box-shadow: inset 0 0 0 3px rgba(17, 25, 40, 1);
+  }
+  
   button { 
-      margin-top: 15px; 
-      padding: 10px; 
-      background-color: #2a5baa; 
-      color: #ffffff; 
-      border: none; 
-      cursor: pointer; 
+    width: 100%;
+    margin-top: 2rem;
+    padding: 1.2rem;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
   }
+  
+  button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+  }
+  
+  button:hover:not(:disabled)::before {
+    left: 100%;
+  }
+  
   button:disabled {
-      background-color: #555555;
-      cursor: not-allowed;
+    background: linear-gradient(135deg, #374151, #4b5563);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
-  p { margin-top: 15px; }
-
+  
+  button:disabled::before {
+    display: none;
+  }
+  
+  #cooldownMsg {
+    color: #ef4444;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  #message {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 500;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+  }
+  
+  /* Animations */
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .container > * {
+    animation: slideUp 0.6s ease forwards;
+  }
+  
+  .container > *:nth-child(2) { animation-delay: 0.1s; }
+  .container > *:nth-child(3) { animation-delay: 0.2s; }
+  
+  /* Mobile responsiveness */
+  @media (max-width: 640px) {
+    body {
+      padding: 15px;
+    }
+    
+    h2 {
+      font-size: 2rem;
+    }
+    
+    .notes-container, .form-container {
+      padding: 1.5rem;
+    }
+    
+    .radio-group {
+      flex-direction: column;
+    }
+    
+    .radio-option label {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
+  
   /* Responsive image class */
   .responsive-img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: auto;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: auto;
   }
 </style>
 </head>
 <body>
 
-<h2>LKA Check-In</h2>
+<div class="container">
+  <h2>LKA Check-In</h2>
 
-<!-- Important Notes converted to text -->
-<div style="background-color: #1D2122; padding: 15px; border-radius: 8px; color: #FFFFFF;">
-  <h3>📌 Catatan Penting bagi Siswa atas Fasilitas Yayasan</h3>
-  <ol>
-    <li>Semua siswa diminta datang pada <strong style="color:red;">jam 08.45 WIB</strong>. Di atas jam tersebut maka dianggap tidak hadir.</li>
-    <li>Semua siswa berhak menyampaikan ketidakhadirannya pada pengurus pendataan (<strong>0852 1136 6909 – Kak Abdil</strong>).</li>
-    <li>Siswa yang berhak mendapatkan fasilitas harus hadir minimum <strong style="color:red;">3x dalam sebulan</strong>.</li>
-  </ol>
+  <!-- Important Notes converted to text -->
+  <div class="notes-container">
+    <h3>📌 Catatan Penting bagi Siswa atas Fasilitas Yayasan</h3>
+    <ol>
+      <li>Semua siswa diminta datang pada <strong>jam 08.45 WIB</strong>. Di atas jam tersebut maka dianggap tidak hadir.</li>
+      <li>Semua siswa berhak menyampaikan ketidakhadirannya pada pengurus pendataan (<strong>0852 1136 6909 – Kak Abdil</strong>).</li>
+      <li>Siswa yang berhak mendapatkan fasilitas harus hadir minimum <strong>3x dalam sebulan</strong>.</li>
+    </ol>
 
-  <h3>📌 Catatan Penting bagi Guru</h3>
-  <ol>
-    <li>Bertanggung jawab atas tugasnya sebagai pengurus dengan baik dan <strong style="color:red;">kompeten</strong>.</li>
-    <li>Semua guru diminta datang pada <strong style="color:red;">jam 08.45 WIB</strong>.</li>
-    <li>Semua guru diminta pulang sesuai jam kepulangan, yaitu setelah Dzuhur berjamaah.</li>
-    <li>Semua guru diminta tidak berdiam diri (bersembunyi) dan <strong style="color:red;">inisiatif</strong> dengan tugasnya sebagai mudabbir.</li>
-    <li>Laporan perkembangan atas pembelajaran siswa harus diberikan setiap 3 bulan sekali.</li>
-    <li>Laporan kedisiplinan guru akan tercatat dan akan dibahas pada rapat dengan pengurus.</li>
-  </ol>
+    <h3>📌 Catatan Penting bagi Guru</h3>
+    <ol>
+      <li>Bertanggung jawab atas tugasnya sebagai pengurus dengan baik dan <strong>kompeten</strong>.</li>
+      <li>Semua guru diminta datang pada <strong>jam 08.45 WIB</strong>.</li>
+      <li>Semua guru diminta pulang sesuai jam kepulangan, yaitu setelah Dzuhur berjamaah.</li>
+      <li>Semua guru diminta tidak berdiam diri (bersembunyi) dan <strong>inisiatif</strong> dengan tugasnya sebagai mudabbir.</li>
+      <li>Laporan perkembangan atas pembelajaran siswa harus diberikan setiap 3 bulan sekali.</li>
+      <li>Laporan kedisiplinan guru akan tercatat dan akan dibahas pada rapat dengan pengurus.</li>
+    </ol>
+  </div>
+
+  <div class="form-container">
+    <form id="checkinForm">
+      <!-- Student dropdown -->
+      <label>Student Name:</label>
+      <select name="studentName" id="studentName">
+        <option value="">Select student name</option>
+        <option>Afifah Nabilah</option>
+        <option>Ahmad Ridho</option>
+        <option>Aiko Dzahin Sukotjo</option>
+        <option>Ais Rosdiana</option>
+        <option>Arsyila Romeesa Farzana</option>
+        <option>Aprilya Srihayati</option>
+        <option>Al Ghoni Achmed Jangkung</option>
+        <option>Al Gipari Akbar</option>
+        <option>Abit Al Akbar</option>
+        <option>Alika Putri Azzahra</option>
+        <option>Andika Eka Putra</option>
+        <option>Angelita Berliana Yonda</option>
+        <option>Aqillah Qhotrun Nada</option>
+        <option>Ashfa Nadya Zulfa</option>
+        <option>Asri Wulanovia</option>
+        <option>Apriliya Srihayati</option>
+        <option>Bunga Cantika Apriliya</option>
+        <option>Dian Puspita Sari</option>
+        <option>Enny Hidayah</option>
+        <option>Fahmi Maulana Azis</option>
+        <option>Fathur Rozid</option>
+        <option>Felisa Mutiara Bahtiar</option>
+        <option>Fachda Octavia</option>
+        <option>Friska Anggraeni Agustin</option>
+        <option>Hana Tri Wardatul Jannah</option>
+        <option>Haidar Almairi</option>
+        <option>Hudzaifi (Javi)</option>
+        <option>Husen</option>
+        <option>Ibam Purnama</option>
+        <option>Ivan Ardiansyah</option>
+        <option>Jihan Karimah Aulia</option>
+        <option>Jan Schroeder Hallmann</option>
+        <option>Khairunia Rohma</option>
+        <option>Lulu Ambar Sari</option>
+        <option>Luna Lukiyana</option>
+        <option>Marsya Ardeliansyah</option>
+        <option>Mohamad Bagus Mualif</option>
+        <option>Muhamad Abdul Azis</option>
+        <option>Muhamad Akbar Prakoso</option>
+        <option>Muhamad Fahri Sarwono</option>
+        <option>Muhamad Rafli Juniansah</option>
+        <option>Muhamad Raihan</option>
+        <option>Muhamad Yudho Prawiro</option>
+        <option>Muhammad Hafizh Arsad</option>
+        <option>Muhammad Hafizh Ramadan</option>
+        <option>Muhammad Khalid</option>
+        <option>Muhammad Rafa Faiqul Mala</option>
+        <option>Muhammad Rafli</option>
+        <option>Muhammad Raihan</option>
+        <option>Muhammad Rakha Prasetya</option>
+        <option>Muhammad Rasya Aribawa</option>
+        <option>Muhammad Riva Ramadhan</option>
+        <option>Muhammad Rizqi Kurniawan</option>
+        <option>Marizca Lutfillah</option>
+        <option>Naila Talita Muslimah</option>
+        <option>Naura Azzahra Margareti</option>
+        <option>Nazwa Melinda</option>
+        <option>Noval Ditiandika</option>
+        <option>Precylla Areta Utomo</option>
+        <option>Putri Zihan Zahira</option>
+        <option>Radho Putera Ramadhan</option>
+        <option>Rafika Aulia Andari</option>
+        <option>Randy Daniar Rahman</option>
+        <option>Regan Zufar Nadindra</option>
+        <option>Rey Kausar Baihaqi</option>
+        <option>Ridho Al Fakhri</option>
+        <option>Risma Aprianti</option>
+        <option>Rizqa Abni Kasyafani</option>
+        <option>Surya Angkasa</option>
+        <option>Sadam</option>
+        <option>Syahzuanka Al Hadli</option>
+        <option>Sahriya Zulfa Juliastika</option>
+        <option>Saskia Basir</option>
+        <option>Sayyid Rizik</option>
+        <option>Sesya Yulinda</option>
+        <option>Shefa Dwi Safira</option>
+        <option>Sherina Arba Agustiana</option>
+        <option>Shesa Tri Annisa</option>
+        <option>Swarnna Jiwa Raksa Perbawa</option>
+        <option>Syawaludin Kurniawan</option>
+        <option>Tasya Oktafiani</option>
+        <option>Tama Alpariz</option>
+        <option>Yusuf Ansari Subagyo</option>
+        <option>Yogi Arya Sulistiono</option>
+      </select>
+
+      <!-- Teacher dropdown -->
+      <label>Teacher Name:</label>
+      <select name="teacherName" id="teacherName">
+        <option value="">Select teacher name</option>
+        <option>Ustadz Nisin Mursani</option>
+        <option>Ustadz Bay</option>
+        <option>Ustadz Rivo</option>
+      </select>
+
+      <!-- Hidden role field -->
+      <input type="hidden" name="role" id="role">
+
+      <label>Status:</label>
+      <div class="radio-group">
+        <div class="radio-option">
+          <input type="radio" name="status" value="Hadir" id="hadir" required>
+          <label for="hadir">Hadir</label>
+        </div>
+        <div class="radio-option">
+          <input type="radio" name="status" value="Izin" id="izin">
+          <label for="izin">Izin</label>
+        </div>
+        <div class="radio-option">
+          <input type="radio" name="status" value="Absen" id="absen">
+          <label for="absen">Absen</label>
+        </div>
+      </div>
+
+      <!-- Hidden fields for coordinates and map link -->
+      <input type="hidden" name="latitude" id="latitude">
+      <input type="hidden" name="longitude" id="longitude">
+      <input type="hidden" name="mapLink" id="mapLink">
+      <input type="hidden" name="deviceId" id="deviceId">
+      <input type="hidden" name="dayOfWeek" id="dayOfWeek">
+
+      <button type="submit">Check In</button>
+      <p id="cooldownMsg" style="display: none;">Please wait for one hour.</p>
+    </form>
+
+    <p id="message" style="display: none;"></p>
+  </div>
 </div>
-
-<form id="checkinForm">
-  <!-- Student dropdown -->
-<label>Student Name:</label>
-<select name="studentName" id="studentName">
-  <option value="">Select student name</option>
-  <option>Afifah Nabilah</option>
-    <option>Ahmad Ridho</option>
-    <option>Aiko Dzahin Sukotjo</option>
-    <option>Ais Rosdiana</option>
-    <option>Arsyila Romeesa Farzana</option>
-    <option>Aprilya Srihayati</option>
-    <option>Al Ghoni Achmed Jangkung</option>
-    <option>Al Gipari Akbar</option>
-    <option>Abit Al Akbar</option>
-    <option>Alika Putri Azzahra</option>
-    <option>Andika Eka Putra</option>
-    <option>Angelita Berliana Yonda</option>
-    <option>Aqillah Qhotrun Nada</option>
-    <option>Ashfa Nadya Zulfa</option>
-    <option>Asri Wulanovia</option>
-    <option>Apriliya Srihayati</option>
-    <option>Bunga Cantika Apriliya</option>
-    <option>Dian Puspita Sari</option>
-    <option>Enny Hidayah</option>
-    <option>Fahmi Maulana Azis</option>
-    <option>Fathur Rozid</option>
-    <option>Felisa Mutiara Bahtiar</option>
-    <option>Fachda Octavia</option>
-    <option>Friska Anggraeni Agustin</option>
-    <option>Hana Tri Wardatul Jannah</option>
-    <option>Haidar Almairi</option>
-    <option>Hudzaifi (Javi)</option>
-    <option>Husen</option>
-    <option>Ibam Purnama</option>
-    <option>Ivan Ardiansyah</option>
-    <option>Jihan Karimah Aulia</option>
-    <option>Khairunia Rohma</option>
-    <option>Lulu Ambar Sari</option>
-    <option>Luna Lukiyana</option>
-    <option>Marsya Ardeliansyah</option>
-    <option>Mohamad Bagus Mualif</option>
-    <option>Muhamad Abdul Azis</option>
-    <option>Muhamad Akbar Prakoso</option>
-    <option>Muhamad Fahri Sarwono</option>
-    <option>Muhamad Rafli Juniansah</option>
-    <option>Muhamad Raihan</option>
-    <option>Muhamad Yudho Prawiro</option>
-    <option>Muhammad Hafizh Arsad</option>
-    <option>Muhammad Hafizh Ramadan</option>
-    <option>Muhammad Khalid</option>
-    <option>Muhammad Rafa Faiqul Mala</option>
-    <option>Muhammad Rafli</option>
-    <option>Muhammad Raihan</option>
-    <option>Muhammad Rakha Prasetya</option>
-    <option>Muhammad Rasya Aribawa</option>
-    <option>Muhammad Riva Ramadhan</option>
-    <option>Muhammad Rizqi Kurniawan</option>
-    <option>Marizca Lutfillah</option>
-    <option>Naila Talita Muslimah</option>
-    <option>Naura Azzahra Margareti</option>
-    <option>Nazwa Melinda</option>
-    <option>Noval Ditiandika</option>
-    <option>Precylla Areta Utomo</option>
-    <option>Putri Zihan Zahira</option>
-    <option>Radho Putera Ramadhan</option>
-    <option>Rafika Aulia Andari</option>
-    <option>Randy Daniar Rahman</option>
-    <option>Regan Zufar Nadindra</option>
-    <option>Rey Kausar Baihaqi</option>
-    <option>Ridho Al Fakhri</option>
-    <option>Risma Aprianti</option>
-    <option>Rizqa Abni Kasyafani</option>
-    <option>Surya Angkasa</option>
-    <option>Sadam</option>
-    <option>Syahzuanka Al Hadli</option>
-    <option>Sahriya Zulfa Juliastika</option>
-    <option>Saskia Basir</option>
-    <option>Sayyid Rizik</option>
-    <option>Sesya Yulinda</option>
-    <option>Shefa Dwi Safira</option>
-    <option>Sherina Arba Agustiana</option>
-    <option>Shesa Tri Annisa</option>
-    <option>Swarnna Jiwa Raksa Perbawa</option>
-    <option>Syawaludin Kurniawan</option>
-    <option>Tasya Oktafiani</option>
-    <option>Tama Alpariz</option>
-    <option>Yusuf Ansari Subagyo</option>
-    <option>Yogi Arya Sulistiono</option>
-</select>
-
-<!-- Teacher dropdown -->
-<label>Teacher Name:</label>
-<select name="teacherName" id="teacherName">
-  <option value="">Select teacher name</option>
-  <option>Ustadz Nisin Mursani</option>
-  <option>Ustadz Bay</option>
-  <option>Ustadz Rivo</option>
-</select>
-
-<!-- Hidden role field -->
-<input type="hidden" name="role" id="role">
-
-
-  <label>Status:</label>
-  <label><input type="radio" name="status" value="Hadir" required> Hadir</label>
-  <label><input type="radio" name="status" value="Izin"> Izin</label>
-  <label><input type="radio" name="status" value="Absen"> Absen</label>
-
-  <!-- Hidden fields for coordinates and map link -->
-  <input type="hidden" name="latitude" id="latitude">
-  <input type="hidden" name="longitude" id="longitude">
-  <input type="hidden" name="mapLink" id="mapLink">
-  <input type="hidden" name="deviceId" id="deviceId">
-  <input type="hidden" name="dayOfWeek" id="dayOfWeek">
-
-
-  <button type="submit">Check In</button>
-<p id="cooldownMsg" style="color: red; margin-top: 5px; display: none;">Please wait for one hour.</p>
-</form>
-
-<p id="message"></p>
 
 <script>
 // Generate or retrieve stored device ID
@@ -309,10 +620,17 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
     })
     .then(res => res.text())
     .then(() => {
-        document.getElementById("message").innerText = "Check-in recorded successfully!";
+        const messageEl = document.getElementById("message");
+        messageEl.innerText = "Check-in recorded successfully!";
+        messageEl.style.display = "block";
     })
     .catch(err => {
-        document.getElementById("message").innerText = "Error: " + err;
+        const messageEl = document.getElementById("message");
+        messageEl.innerText = "Error: " + err;
+        messageEl.style.display = "block";
+        messageEl.style.background = "rgba(239, 68, 68, 0.1)";
+        messageEl.style.borderColor = "rgba(239, 68, 68, 0.3)";
+        messageEl.style.color = "#ef4444";
         // Only re-enable if there was an error
         checkinButton.disabled = false;
         localStorage.removeItem("lastCheckin");
@@ -322,25 +640,5 @@ document.getElementById("checkinForm").addEventListener("submit", function(e) {
 
 </script>
 
-
-
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
